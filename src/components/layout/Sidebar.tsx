@@ -84,37 +84,37 @@ const Sidebar = () => {
   const isSupportExpanded = supportItems.some(item => isActive(item.path));
 
   const getNavClass = ({ isActive }: { isActive: boolean }) => {
-    return `flex items-center gap-3 px-3 py-2 rounded-md transition-colors ${
+    return `flex items-center gap-3 px-3 py-2 rounded-md transition-all ${
       isActive 
-        ? 'bg-skillsync-primary text-white font-medium' 
-        : 'hover:bg-muted/80 text-gray-700'
+        ? 'bg-skillsync-primary text-white font-medium shadow-sm' 
+        : 'hover:bg-skillsync-gray-light text-skillsync-dark hover:text-skillsync-primary'
     }`;
   };
 
   return (
     <UISidebar 
-      className={`border-r border-border bg-white ${
+      className={`border-r border-skillsync-gray-light bg-white shadow-sm z-10 ${
         collapsed ? 'w-16' : 'w-64'
       }`}
       collapsible="icon"
     >
-      <div className="h-16 border-b flex items-center justify-center">
+      <div className="h-16 border-b border-skillsync-gray-light flex items-center justify-center">
         {!collapsed && (
           <div className="flex items-center gap-2 px-4">
-            <div className="h-6 w-6 bg-gradient-to-br from-skillsync-primary to-skillsync-tertiary rounded-md" />
+            <div className="h-8 w-8 bg-gradient-to-br from-skillsync-primary to-skillsync-tertiary rounded-md shadow-sm" />
             <span className="text-lg font-bold text-skillsync-dark">
               SkillSync
             </span>
           </div>
         )}
         {collapsed && (
-          <div className="h-6 w-6 bg-gradient-to-br from-skillsync-primary to-skillsync-tertiary rounded-md" />
+          <div className="h-8 w-8 bg-gradient-to-br from-skillsync-primary to-skillsync-tertiary rounded-md shadow-sm" />
         )}
       </div>
       
       <SidebarContent className="py-4">
         <SidebarGroup>
-          <SidebarGroupLabel className={collapsed ? 'sr-only' : ''}>
+          <SidebarGroupLabel className={`text-skillsync-dark/70 font-medium px-4 ${collapsed ? 'sr-only' : ''}`}>
             Main
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -123,7 +123,7 @@ const Sidebar = () => {
                 <SidebarMenuItem key={item.path}>
                   <SidebarMenuButton asChild>
                     <NavLink to={item.path} className={getNavClass}>
-                      <item.icon className="h-5 w-5" />
+                      <item.icon className={`h-5 w-5 ${isActive(item.path) ? 'text-white' : 'text-skillsync-primary'}`} />
                       {!collapsed && <span>{item.name}</span>}
                     </NavLink>
                   </SidebarMenuButton>
@@ -134,7 +134,7 @@ const Sidebar = () => {
         </SidebarGroup>
 
         <SidebarGroup>
-          <SidebarGroupLabel className={collapsed ? 'sr-only' : ''}>
+          <SidebarGroupLabel className={`text-skillsync-dark/70 font-medium px-4 mt-4 ${collapsed ? 'sr-only' : ''}`}>
             Support
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -143,7 +143,7 @@ const Sidebar = () => {
                 <SidebarMenuItem key={item.path}>
                   <SidebarMenuButton asChild>
                     <NavLink to={item.path} className={getNavClass}>
-                      <item.icon className="h-5 w-5" />
+                      <item.icon className={`h-5 w-5 ${isActive(item.path) ? 'text-white' : 'text-skillsync-primary'}`} />
                       {!collapsed && <span>{item.name}</span>}
                     </NavLink>
                   </SidebarMenuButton>
@@ -154,7 +154,7 @@ const Sidebar = () => {
         </SidebarGroup>
 
         <div className="mt-auto px-4 pt-4">
-          <SidebarTrigger className="w-full flex justify-center" />
+          <SidebarTrigger className="w-full flex justify-center text-skillsync-primary hover:bg-skillsync-gray-light rounded-md" />
         </div>
       </SidebarContent>
     </UISidebar>
