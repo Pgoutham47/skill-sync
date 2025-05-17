@@ -9,13 +9,13 @@
     "paths": {
       "@/*": ["./src/*"]
     },
-    "noImplicitAny": false,
-    "noUnusedParameters": false,
-    "skipLibCheck": true,
-    "allowJs": true,
-    "noUnusedLocals": false,
-    "strictNullChecks": false,
-    "esModuleInterop": true
+    "noImplicitAny": true, // Enforce type safety
+    "noUnusedParameters": true, // Enforce cleaner code
+    "skipLibCheck": true, // Keep true if performance is a concern
+    "allowJs": false, // Disable if using only TypeScript
+    "noUnusedLocals": true, // Enforce cleaner code
+    "strictNullChecks": true, // Enforce null safety
+    "esModuleInterop": true // Keep true for CommonJS compatibility
   }
 }
 
