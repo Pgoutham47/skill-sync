@@ -1,5 +1,6 @@
 
 import { createContext, useContext, useState, ReactNode, useEffect } from "react";
+import { toast } from '@/hooks/use-toast';
 
 type User = {
   id: string;
@@ -48,6 +49,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Store in localStorage for persistence across page reloads
       localStorage.setItem("skillsync_user", JSON.stringify(mockUser));
       setUser(mockUser);
+      
+      // Show success toast
+      toast({
+        title: "Login Successful",
+        description: `Welcome back, ${mockUser.name}!`,
+      });
+    } catch (error) {
+      toast({
+        title: "Login Failed",
+        description: "Please check your credentials and try again.",
+        variant: "destructive",
+      });
+      throw error;
     } finally {
       setLoading(false);
     }
@@ -69,6 +83,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Store in localStorage for persistence
       localStorage.setItem("skillsync_user", JSON.stringify(newUser));
       setUser(newUser);
+      
+      // Show success toast
+      toast({
+        title: "Registration Successful",
+        description: `Welcome to SkillSync, ${name}!`,
+      });
+    } catch (error) {
+      toast({
+        title: "Registration Failed",
+        description: "An error occurred during registration. Please try again.",
+        variant: "destructive",
+      });
+      throw error;
     } finally {
       setLoading(false);
     }

@@ -22,8 +22,12 @@ import {
   BarChart,
   BookOpen,
   Settings,
-  HelpCircle
+  HelpCircle,
+  LogOut
 } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
+import { toast } from '@/hooks/use-toast';
+import { Button } from '@/components/ui/button';
 
 const menuItems = [
   { 
@@ -74,6 +78,7 @@ const supportItems = [
 const Sidebar = () => {
   const { state } = useSidebar();
   const location = useLocation();
+  const { logout, user } = useAuth();
   const currentPath = location.pathname;
   
   // Determine if sidebar is collapsed
@@ -89,6 +94,14 @@ const Sidebar = () => {
         ? 'bg-skillsync-primary text-white font-medium shadow-sm' 
         : 'text-skillsync-dark hover:bg-skillsync-gray-light hover:text-skillsync-primary'
     }`;
+  };
+
+  const handleLogout = () => {
+    logout();
+    toast({
+      title: "Logged out",
+      description: "You have been successfully logged out",
+    });
   };
 
   return (
@@ -153,8 +166,33 @@ const Sidebar = () => {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        <div className="mt-auto px-4 pt-4">
-          <SidebarTrigger className="w-full flex justify-center text-skillsync-primary hover:bg-skillsync-gray-light rounded-md" />
+        {/* User information and logout */}
+        <div className="mt-auto px-4 pt-4 border-t border-skillsync-gray-light">
+          {!collapsed && user && (
+            <div className="mb-2 px-2">
+              <div className="text-sm font-medium text-skillsync-dark">
+                {user.name}
+              </div>
+              <div className="text-xs text-skillsync-dark/70 truncate">
+                {user.email}
+              </div>
+            </div>
+          )}
+          
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild>
+              <Button
+                variant="outline"
+                className="w-full justify-start border-skillsync-gray-light text-skillsync-dark hover:text-destructive hover:border-destructive"
+                onClick={handleLogout}
+              >
+                <LogOut className="h-5 w-5 mr-2 text-red-500" />
+                {!collapsed && <span>Logout</span>}
+              </Button>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+
+          <SidebarTrigger className="mt-2 w-full flex justify-center text-skillsync-primary hover:bg-skillsync-gray-light rounded-md" />
         </div>
       </SidebarContent>
     </UISidebar>
