@@ -8,7 +8,7 @@ import Sidebar from './Sidebar';
 
 const DashboardLayout = () => {
   return (
-    <SidebarProvider collapsedWidth={64}>
+    <SidebarProvider>
       <div className="min-h-screen flex w-full bg-skillsync-background">
         <Sidebar />
         <div className="flex-1 flex flex-col min-h-screen">

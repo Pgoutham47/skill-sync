@@ -72,9 +72,12 @@ const supportItems = [
 ];
 
 const Sidebar = () => {
-  const { collapsed } = useSidebar();
+  const { state } = useSidebar();
   const location = useLocation();
   const currentPath = location.pathname;
+  
+  // Determine if sidebar is collapsed
+  const collapsed = state === 'collapsed';
 
   const isActive = (path: string) => currentPath === path;
   const isMainExpanded = menuItems.some(item => isActive(item.path));
@@ -93,7 +96,7 @@ const Sidebar = () => {
       className={`border-r border-border bg-white ${
         collapsed ? 'w-16' : 'w-64'
       }`}
-      collapsible
+      collapsible="icon"
     >
       <div className="h-16 border-b flex items-center justify-center">
         {!collapsed && (
@@ -110,7 +113,7 @@ const Sidebar = () => {
       </div>
       
       <SidebarContent className="py-4">
-        <SidebarGroup defaultOpen={isMainExpanded}>
+        <SidebarGroup>
           <SidebarGroupLabel className={collapsed ? 'sr-only' : ''}>
             Main
           </SidebarGroupLabel>
@@ -130,7 +133,7 @@ const Sidebar = () => {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        <SidebarGroup defaultOpen={isSupportExpanded}>
+        <SidebarGroup>
           <SidebarGroupLabel className={collapsed ? 'sr-only' : ''}>
             Support
           </SidebarGroupLabel>
