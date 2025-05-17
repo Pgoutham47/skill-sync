@@ -16,10 +16,10 @@ const LandingPage = () => {
             </span>
           </div>
           <div className="flex items-center gap-3">
-            <Button asChild variant="ghost">
+            <Button asChild variant="outline" className="border-skillsync-primary text-skillsync-primary hover:bg-skillsync-primary/10">
               <Link to="/login">Log in</Link>
             </Button>
-            <Button asChild>
+            <Button asChild className="bg-skillsync-primary text-white hover:bg-skillsync-primary/90">
               <Link to="/register">Sign up</Link>
             </Button>
           </div>

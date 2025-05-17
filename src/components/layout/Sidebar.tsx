@@ -87,7 +87,7 @@ const Sidebar = () => {
     return `flex items-center gap-3 px-3 py-2 rounded-md transition-all ${
       isActive 
         ? 'bg-skillsync-primary text-white font-medium shadow-sm' 
-        : 'hover:bg-skillsync-gray-light text-skillsync-dark hover:text-skillsync-primary'
+        : 'text-skillsync-dark hover:bg-skillsync-gray-light hover:text-skillsync-primary'
     }`;
   };
 
