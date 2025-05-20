@@ -1,8 +1,6 @@
+
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
   provider = "prisma-client-js"
@@ -12,4 +10,82 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String          @id @default(uuid())
+  email          String          @unique
+  name           String?
+  password       String?
+  githubId       String?         @unique
+  googleId       String?         @unique
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  profile        Profile?
+  skillSets      SkillSet[]
+  learningPaths  LearningPath[]
+}
+
+model Profile {
+  id              String    @id @default(uuid())
+  userId          String    @unique
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  resumeUrl       String?
+  transcriptUrl   String?
+  githubUrl       String?
+  additionalSkills String[]
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+model SkillSet {
+  id              String    @id @default(uuid())
+  userId          String
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  skills          Skill[]
+}
+
+model Skill {
+  id              String    @id @default(uuid())
+  name            String
+  level           String    // Beginner, Intermediate, Advanced
+  source          String    // resume, github, transcript, user
+  category        String    // Programming, Design, Data Science, DevOps, Soft Skills, Other
+  levelScore      Int       // 1-100
+  verified        Boolean   @default(false)
+  description     String?
+  skillSetId      String
+  skillSet        SkillSet  @relation(fields: [skillSetId], references: [id], onDelete: Cascade)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([skillSetId])
+}
+
+model LearningPath {
+  id              String    @id @default(uuid())
+  userId          String
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title           String
+  description     String?
+  targetJob       String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  resources       LearningResource[]
+}
+
+model LearningResource {
+  id              String    @id @default(uuid())
+  title           String
+  url             String
+  type            String    // course, book, documentation, video, etc.
+  platform        String?   // Coursera, Udemy, YouTube, etc.
+  description     String?
+  skillsAddressed String[]
+  learningPathId  String
+  learningPath    LearningPath @relation(fields: [learningPathId], references: [id], onDelete: Cascade)
+
+  @@index([learningPathId])
 }

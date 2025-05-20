@@ -1,10 +1,36 @@
 
 import { createContext, useContext, useState, ReactNode, useEffect } from "react";
+import axios from "axios";
 import { toast } from '@/hooks/use-toast';
+
+// API base URL from environment variable or default
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+
+// Create API instance with default configurations
+const api = axios.create({
+  baseURL: API_BASE_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+// Intercept requests to add auth token
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem("skillsync_token");
+    if (token) {
+      config.headers['Authorization'] = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
 
 type User = {
   id: string;
-  name: string;
+  name: string | null;
   email: string;
 } | null;
 
@@ -24,41 +50,45 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check for stored user in localStorage
-    const storedUser = localStorage.getItem("skillsync_user");
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-    setLoading(false);
+    // Check for stored token and validate it
+    const checkAuth = async () => {
+      const token = localStorage.getItem("skillsync_token");
+      if (!token) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const { data } = await api.get('/auth/me');
+        setUser(data.data);
+      } catch (error) {
+        console.error("Auth check failed:", error);
+        localStorage.removeItem("skillsync_token");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkAuth();
   }, []);
 
   const login = async (email: string, password: string) => {
-    // In a real app, this would make an API call to authenticate
     try {
       setLoading(true);
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const { data } = await api.post('/auth/login', { email, password });
       
-      // For demo purposes, we're setting a mock user
-      const mockUser = {
-        id: "user-1",
-        name: email.split('@')[0],
-        email,
-      };
+      localStorage.setItem("skillsync_token", data.token);
+      setUser(data.user);
       
-      // Store in localStorage for persistence across page reloads
-      localStorage.setItem("skillsync_user", JSON.stringify(mockUser));
-      setUser(mockUser);
-      
-      // Show success toast
       toast({
         title: "Login Successful",
-        description: `Welcome back, ${mockUser.name}!`,
+        description: `Welcome back, ${data.user.name || data.user.email}!`,
       });
-    } catch (error) {
+    } catch (error: any) {
+      console.error("Login error:", error);
       toast({
         title: "Login Failed",
-        description: "Please check your credentials and try again.",
+        description: error.response?.data?.message || "Please check your credentials and try again.",
         variant: "destructive",
       });
       throw error;
@@ -70,29 +100,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const register = async (name: string, email: string, password: string) => {
     try {
       setLoading(true);
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const { data } = await api.post('/auth/register', { name, email, password });
       
-      // For demo purposes, create a new user
-      const newUser = {
-        id: `user-${Date.now()}`,
-        name,
-        email,
-      };
+      localStorage.setItem("skillsync_token", data.token);
+      setUser(data.user);
       
-      // Store in localStorage for persistence
-      localStorage.setItem("skillsync_user", JSON.stringify(newUser));
-      setUser(newUser);
-      
-      // Show success toast
       toast({
         title: "Registration Successful",
         description: `Welcome to SkillSync, ${name}!`,
       });
-    } catch (error) {
+    } catch (error: any) {
+      console.error("Registration error:", error);
       toast({
         title: "Registration Failed",
-        description: "An error occurred during registration. Please try again.",
+        description: error.response?.data?.message || "An error occurred during registration. Please try again.",
         variant: "destructive",
       });
       throw error;
@@ -102,7 +123,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = () => {
-    localStorage.removeItem("skillsync_user");
+    localStorage.removeItem("skillsync_token");
     setUser(null);
   };
 
@@ -127,3 +148,6 @@ export function useAuth() {
   }
   return context;
 }
+
+// Export the API instance for use in other files
+export const apiClient = api;
