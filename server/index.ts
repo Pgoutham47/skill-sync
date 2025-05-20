@@ -7,7 +7,6 @@ import { PrismaClient } from '@prisma/client';
 import authRoutes from './routes/authRoutes';
 import userRoutes from './routes/userRoutes';
 import uploadRoutes from './routes/uploadRoutes';
-import errorHandler from './middleware/errorHandler';
 import path from 'path';
 import fs from 'fs';
 import passport from 'passport';
@@ -54,7 +53,11 @@ app.get('/api/health', (req, res) => {
 });
 
 // Error handling
-app.use(errorHandler);
+// Basic error handler middleware
+app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+  console.error(err.stack);
+  res.status(500).json({ error: 'Internal Server Error' });
+});
 
 // Start server
 app.listen(PORT, () => {
