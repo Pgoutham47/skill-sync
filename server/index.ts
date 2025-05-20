@@ -6,7 +6,9 @@ import cookieParser from 'cookie-parser';
 import { PrismaClient } from '../generated/prisma';
 import authRoutes from './routes/authRoutes';
 import userRoutes from './routes/userRoutes';
+import uploadRoutes from './routes/uploadRoutes';
 import errorHandler from './middleware/errorHandler';
+import path from 'path';
 
 // Load environment variables
 dotenv.config();
@@ -26,9 +28,13 @@ app.use(cors({
   credentials: true
 }));
 
+// Serve static files from uploads directory
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/upload', uploadRoutes);
 
 // Health check route
 app.get('/api/health', (req, res) => {

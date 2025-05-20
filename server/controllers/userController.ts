@@ -2,6 +2,8 @@
 import { Request, Response } from 'express';
 import prisma from '../config/database';
 import type { ProfileUpdateData } from '../types';
+import { extractGithubUsername, extractSkillsFromGithub } from '../services/githubService';
+import { v4 as uuidv4 } from 'uuid';
 
 // Get user profile
 export const getUserProfile = async (req: Request, res: Response) => {
@@ -49,6 +51,20 @@ export const updateUserProfile = async (req: Request, res: Response) => {
 
     const profileData: ProfileUpdateData = req.body;
 
+    // If GitHub URL changed, extract skills
+    let githubSkills = [];
+    if (profileData.githubUrl) {
+      try {
+        const username = extractGithubUsername(profileData.githubUrl);
+        if (username) {
+          githubSkills = await extractSkillsFromGithub(username);
+        }
+      } catch (error) {
+        console.error('GitHub skills extraction error:', error);
+        // Continue with profile update even if GitHub extraction fails
+      }
+    }
+
     // Update or create profile
     const profile = await prisma.profile.upsert({
       where: { userId: req.user.id },
@@ -60,9 +76,33 @@ export const updateUserProfile = async (req: Request, res: Response) => {
       },
     });
 
+    // If GitHub skills were extracted, create a new skill set
+    if (githubSkills.length > 0) {
+      const skillSet = await prisma.skillSet.create({
+        data: {
+          userId: req.user.id,
+        },
+      });
+
+      await prisma.skill.createMany({
+        data: githubSkills.map((skill: any) => ({
+          id: uuidv4(),
+          name: skill.name,
+          level: skill.level,
+          levelScore: skill.levelScore,
+          source: skill.source,
+          category: skill.category,
+          verified: skill.verified || false,
+          description: skill.description,
+          skillSetId: skillSet.id,
+        })),
+      });
+    }
+
     res.status(200).json({
       success: true,
       data: profile,
+      skillsExtracted: githubSkills.length > 0,
     });
   } catch (error) {
     console.error('Update profile error:', error);
