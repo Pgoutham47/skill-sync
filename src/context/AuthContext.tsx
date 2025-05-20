@@ -1,32 +1,8 @@
 
 import { createContext, useContext, useState, ReactNode, useEffect } from "react";
-import axios from "axios";
 import { toast } from '@/hooks/use-toast';
-
-// API base URL from environment variable or default
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-
-// Create API instance with default configurations
-const api = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
-
-// Intercept requests to add auth token
-api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem("skillsync_token");
-    if (token) {
-      config.headers['Authorization'] = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
+import { authAPI } from '@/utils/api';
+import axios from 'axios';
 
 type User = {
   id: string;
@@ -59,7 +35,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       try {
-        const { data } = await api.get('/auth/me');
+        const { data } = await authAPI.getCurrentUser();
         setUser(data.data);
       } catch (error) {
         console.error("Auth check failed:", error);
@@ -75,7 +51,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = async (email: string, password: string) => {
     try {
       setLoading(true);
-      const { data } = await api.post('/auth/login', { email, password });
+      const { data } = await authAPI.login({ email, password });
       
       localStorage.setItem("skillsync_token", data.token);
       setUser(data.user);
@@ -100,7 +76,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const register = async (name: string, email: string, password: string) => {
     try {
       setLoading(true);
-      const { data } = await api.post('/auth/register', { name, email, password });
+      const { data } = await authAPI.register({ name, email, password });
       
       localStorage.setItem("skillsync_token", data.token);
       setUser(data.user);
@@ -149,5 +125,10 @@ export function useAuth() {
   return context;
 }
 
-// Export the API instance for use in other files
-export const apiClient = api;
+// Export the API client for use in other files
+export const apiClient = axios.create({
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
