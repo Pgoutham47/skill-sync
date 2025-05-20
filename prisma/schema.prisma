@@ -10,6 +10,7 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  shadowDatabaseUrl = "postgresql://goutham@localhost:5432/gouthampakala"
 }
 
 model User {

@@ -8,7 +8,8 @@
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+     "server:dev": "next dev"
   },
   "dependencies": {
     "@clerk/clerk-sdk-node": "^4.13.23",
