@@ -9,6 +9,9 @@ import userRoutes from './routes/userRoutes';
 import uploadRoutes from './routes/uploadRoutes';
 import errorHandler from './middleware/errorHandler';
 import path from 'path';
+import fs from 'fs';
+import passport from 'passport';
+import './config/passport'; // Import passport configuration
 
 // Load environment variables
 dotenv.config();
@@ -28,8 +31,17 @@ app.use(cors({
   credentials: true
 }));
 
+// Initialize Passport
+app.use(passport.initialize());
+
+// Ensure uploads directory exists
+const uploadsDir = process.env.UPLOAD_DIR || path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
 // Serve static files from uploads directory
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/uploads', express.static(uploadsDir));
 
 // Routes
 app.use('/api/auth', authRoutes);
