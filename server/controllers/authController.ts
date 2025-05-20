@@ -4,6 +4,7 @@ import bcrypt from 'bcryptjs';
 import prisma from '../config/database';
 import { generateToken } from '../utils/jwt';
 import type { LoginCredentials, RegisterCredentials } from '../types';
+import passport from 'passport';
 
 // Register a new user
 export const register = async (req: Request, res: Response) => {
@@ -168,4 +169,44 @@ export const getCurrentUser = async (req: Request, res: Response) => {
       message: 'Server error',
     });
   }
+};
+
+// Initiate Google OAuth
+export const googleAuth = passport.authenticate('google', {
+  scope: ['profile', 'email'],
+});
+
+// Google OAuth callback
+export const googleCallback = (req: Request, res: Response) => {
+  passport.authenticate('google', { session: false }, (err: any, user: any) => {
+    if (err || !user) {
+      return res.redirect(`${process.env.CLIENT_URL}/login?error=oauth-error`);
+    }
+    
+    // Generate JWT token
+    const token = generateToken(user);
+    
+    // Redirect to client with token
+    return res.redirect(`${process.env.CLIENT_URL}/oauth-success?token=${token}`);
+  })(req, res);
+};
+
+// Initiate GitHub OAuth
+export const githubAuth = passport.authenticate('github', {
+  scope: ['user:email'],
+});
+
+// GitHub OAuth callback
+export const githubCallback = (req: Request, res: Response) => {
+  passport.authenticate('github', { session: false }, (err: any, user: any) => {
+    if (err || !user) {
+      return res.redirect(`${process.env.CLIENT_URL}/login?error=oauth-error`);
+    }
+    
+    // Generate JWT token
+    const token = generateToken(user);
+    
+    // Redirect to client with token
+    return res.redirect(`${process.env.CLIENT_URL}/oauth-success?token=${token}`);
+  })(req, res);
 };

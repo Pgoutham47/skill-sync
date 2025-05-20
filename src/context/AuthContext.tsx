@@ -2,7 +2,6 @@
 import { createContext, useContext, useState, ReactNode, useEffect } from "react";
 import { toast } from '@/hooks/use-toast';
 import { authAPI } from '@/utils/api';
-import axios from 'axios';
 
 type User = {
   id: string;
@@ -124,11 +123,3 @@ export function useAuth() {
   }
   return context;
 }
-
-// Export the API client for use in other files
-export const apiClient = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});

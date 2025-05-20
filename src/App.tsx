@@ -15,6 +15,7 @@ import SkillAssessmentPage from "./pages/SkillAssessmentPage";
 import JobMarketPage from "./pages/JobMarketPage";
 import SkillGapPage from "./pages/SkillGapPage";
 import LearningPathPage from "./pages/LearningPathPage";
+import OAuthSuccessPage from "./pages/OAuthSuccessPage";
 import NotFound from "./pages/NotFound";
 
 // Components
@@ -37,6 +38,7 @@ const App = () => (
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
+            <Route path="/oauth-success" element={<OAuthSuccessPage />} />
             
             {/* Protected routes */}
             <Route element={<ProtectedRoute />}>
